@@ -1,5 +1,11 @@
 #!/bin/bash
-# A script that creates initial tables and schemas and ingests data located in /opt/data
+# A script that creates initial tables and schemas located in /opt/database/tables for the test database
+#
+# Test datatabase configs: 
+# DB_USER=stocks 
+# DB_PASS=stocks
+# DB_NAME=coop-stocks
+
 # If schemas exist already, don't bother running
 SCHEMA_CHECK="SELECT CASE WHEN EXISTS(SELECT schema_name FROM information_schema.schemata WHERE schema_name='stocks') THEN 1 ELSE 0 END AS exist"
 if [ $( psql -qtAX -d coop-stocks -U stocks -c "${SCHEMA_CHECK}") -eq 1 ]

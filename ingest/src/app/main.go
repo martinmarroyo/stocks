@@ -3,24 +3,32 @@ package main
 import (
 	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	pgx "github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func main() {
 	// Get environment variables
 	dbUrl := os.Getenv("DB_URL")
 	apiKey := os.Getenv("ALPHA_VANTAGE_API_KEY")
+	compact := flag.Bool("compact", true, "Flag that indicates whether to get first 100 data points or full history")
+	flag.Parse()
+	if *compact == true {
+		fmt.Println("Payload size: Last 100 data points")
+	} else {
+		fmt.Println("Payload size: Last 20+ years historical")
+	}
 	ctx := context.Background()
 	conn, err := connectToDB(ctx, dbUrl)
 	if err != nil {
 		log.Fatal("failed to connect database", err)
 	}
-	defer conn.Close(ctx)
+	defer conn.Close()
 	// Open file with symbols
 	symbols, err := os.Open("symbols.txt")
 	if err != nil {
@@ -36,7 +44,7 @@ func main() {
 		}
 		symbol := scanner.Text()
 		fmt.Printf("Getting data for %s\n", symbol)
-		getStockData(&ctx, conn, apiKey, symbol)
+		getStockData(&ctx, conn, *compact, apiKey, symbol)
 		fmt.Println("Total rows inserted for Daily Stocks: ", ctx.Value("DailyStocksRowsInserted"))
 		fmt.Println("Total rows inserted for CompanyOverview: ", ctx.Value("CompanyOverviewRowsInserted"))
 		fmt.Println("Total rows inserted for BalanceSheet: ", ctx.Value("BalanceSheetRowsInserted"))
@@ -49,8 +57,8 @@ func main() {
 
 // getStockData fetches stock data for a given symbol, collecting the Company Overview, Balance Sheets,
 // Income Statements, Cash Flow Statements, Annual Earnings Reports, and daily Stock Prices.
-func getStockData(ctx *context.Context, connection *pgx.Conn, apiKey, symbol string) {
-	dailyStocks := getDailyStockData(apiKey, "TIME_SERIES_DAILY", symbol)
+func getStockData(ctx *context.Context, connection *pgxpool.Pool, compact bool, apiKey, symbol string) {
+	dailyStocks := getDailyStockData(compact, apiKey, "TIME_SERIES_DAILY", symbol)
 	companyOverview := getCompanyOverview(apiKey, "OVERVIEW", symbol)
 	balanceSheets := getBalanceSheet(apiKey, "BALANCE_SHEET", symbol)
 	incomeStatements := getIncomeStatement(apiKey, "INCOME_STATEMENT", symbol)

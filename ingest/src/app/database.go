@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log"
 
-	pgx "github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func connectToDB(ctx context.Context, url string) (*pgx.Conn, error) {
-	return pgx.Connect(ctx, url)
+func connectToDB(ctx context.Context, url string) (*pgxpool.Pool, error) {
+	return pgxpool.Connect(ctx, url)
 }
 
 // nullableString takes in a string that represents an empty string (in our case, either "" or "None")
@@ -26,7 +26,7 @@ func nullableString(val string) sql.NullString {
 	}
 }
 
-func upsertDailyStock(ctx *context.Context, connection *pgx.Conn, dailyStock DailyStockResponse) {
+func upsertDailyStock(ctx *context.Context, connection *pgxpool.Pool, dailyStock DailyStockResponse) {
 	query := `INSERT INTO DailyStocks 
 			(Symbol, fiscalDate, Open, High, Low, Close, Volume) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -49,7 +49,7 @@ func upsertDailyStock(ctx *context.Context, connection *pgx.Conn, dailyStock Dai
 	*ctx = context.WithValue(*ctx, "DailyStocksRowsInserted", rowsInserted)
 }
 
-func upsertCompanyOverview(ctx *context.Context, connection *pgx.Conn, data CompanyOverview) {
+func upsertCompanyOverview(ctx *context.Context, connection *pgxpool.Pool, data CompanyOverview) {
 	insertStatement := `INSERT INTO CompanyOverview (
 		symbol, assetType, name, description, cik, exchange, currency, country, 
 		sector, industry, address, fiscalYearEnd, latestQuarter, marketCapitalization, 
@@ -91,7 +91,7 @@ func upsertCompanyOverview(ctx *context.Context, connection *pgx.Conn, data Comp
 	*ctx = context.WithValue(*ctx, "CompanyOverviewRowsInserted", int(command.RowsAffected()))
 }
 
-func upsertBalanceSheet(ctx *context.Context, connection *pgx.Conn, data BalanceSheet) {
+func upsertBalanceSheet(ctx *context.Context, connection *pgxpool.Pool, data BalanceSheet) {
 	insertStatement := `INSERT INTO BalanceSheet (
 		symbol, fiscalDateEnding, reportedCurrency, totalAssets, totalCurrentAssets, 
 		cashAndCashEquivalentsAtCarryingValue, cashAndShortTermInvestments, inventory, 
@@ -133,7 +133,7 @@ func upsertBalanceSheet(ctx *context.Context, connection *pgx.Conn, data Balance
 	*ctx = context.WithValue(*ctx, "BalanceSheetRowsInserted", rowsInserted)
 }
 
-func upsertIncomeStatement(ctx *context.Context, connection *pgx.Conn, data IncomeStatement) {
+func upsertIncomeStatement(ctx *context.Context, connection *pgxpool.Pool, data IncomeStatement) {
 	insertStatement := `INSERT INTO IncomeStatement (
 		symbol, fiscalDateEnding, reportedCurrency, grossProfit, totalRevenue, 
 		costOfRevenue, costofGoodsAndServicesSold, operatingIncome, 
@@ -170,7 +170,7 @@ func upsertIncomeStatement(ctx *context.Context, connection *pgx.Conn, data Inco
 	*ctx = context.WithValue(*ctx, "IncomeStatementRowsInserted", rowsInserted)
 }
 
-func upsertCashFlowReport(ctx *context.Context, connection *pgx.Conn, data CashflowReport) {
+func upsertCashFlowReport(ctx *context.Context, connection *pgxpool.Pool, data CashflowReport) {
 	insertStatement := `INSERT INTO CashFlow (
 		symbol, fiscalDateEnding, reportedCurrency, operatingCashflow, 
 		paymentsForOperatingActivities, proceedsFromOperatingActivities, 

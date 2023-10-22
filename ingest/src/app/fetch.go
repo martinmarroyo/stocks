@@ -16,9 +16,8 @@ func buildUrl(apiKey, function, symbol string) string {
 	return finalUrl
 }
 
-func getApiResponseBody(apiKey, function, symbol string) ([]byte, error) {
-	// Build url
-	url := buildUrl(apiKey, function, symbol)
+func getApiResponseBody(url, apiKey, function, symbol string) ([]byte, error) {
+
 	// Make request
 	request, err := http.Get(url)
 	if err != nil {
@@ -28,8 +27,15 @@ func getApiResponseBody(apiKey, function, symbol string) ([]byte, error) {
 	return body, err
 }
 
-func getDailyStockData(apiKey, function, symbol string) DailyStockResponse {
-	body, err := getApiResponseBody(apiKey, function, symbol)
+func getDailyStockData(compact bool, apiKey, function, symbol string) DailyStockResponse {
+	var outputSize string
+	if compact {
+		outputSize = "compact"
+	} else {
+		outputSize = "full"
+	}
+	url := buildUrl(apiKey, function, symbol) + "&outputsize=" + outputSize
+	body, err := getApiResponseBody(url, apiKey, function, symbol)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,7 +45,8 @@ func getDailyStockData(apiKey, function, symbol string) DailyStockResponse {
 }
 
 func getCompanyOverview(apiKey, function, symbol string) CompanyOverview {
-	body, err := getApiResponseBody(apiKey, function, symbol)
+	url := buildUrl(apiKey, function, symbol)
+	body, err := getApiResponseBody(url, apiKey, function, symbol)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,7 +56,8 @@ func getCompanyOverview(apiKey, function, symbol string) CompanyOverview {
 }
 
 func getBalanceSheet(apiKey, function, symbol string) BalanceSheet {
-	body, err := getApiResponseBody(apiKey, function, symbol)
+	url := buildUrl(apiKey, function, symbol)
+	body, err := getApiResponseBody(url, apiKey, function, symbol)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +67,8 @@ func getBalanceSheet(apiKey, function, symbol string) BalanceSheet {
 }
 
 func getIncomeStatement(apiKey, function, symbol string) IncomeStatement {
-	body, err := getApiResponseBody(apiKey, function, symbol)
+	url := buildUrl(apiKey, function, symbol)
+	body, err := getApiResponseBody(url, apiKey, function, symbol)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,7 +78,8 @@ func getIncomeStatement(apiKey, function, symbol string) IncomeStatement {
 }
 
 func getCashFlowReport(apiKey, function, symbol string) CashflowReport {
-	body, err := getApiResponseBody(apiKey, function, symbol)
+	url := buildUrl(apiKey, function, symbol)
+	body, err := getApiResponseBody(url, apiKey, function, symbol)
 	if err != nil {
 		log.Fatal(err)
 	}
