@@ -1,0 +1,32 @@
+CREATE TABLE IF NOT EXISTS IncomeStatement (
+    symbol VARCHAR(10) NOT NULL,
+    fiscalDateEnding DATE NOT NULL,
+    reportedCurrency VARCHAR(3) NOT NULL,
+    grossProfit BIGINT,
+    totalRevenue BIGINT,
+    costOfRevenue BIGINT,
+    costofGoodsAndServicesSold BIGINT,
+    operatingIncome BIGINT,
+    sellingGeneralAndAdministrative BIGINT,
+    researchAndDevelopment BIGINT,
+    operatingExpenses BIGINT,
+    investmentIncomeNet BIGINT,
+    netInterestIncome BIGINT,
+    interestIncome BIGINT,
+    interestExpense BIGINT,
+    nonInterestIncome BIGINT,
+    otherNonOperatingIncome BIGINT,
+    depreciation BIGINT,
+    depreciationAndAmortization BIGINT,
+    incomeBeforeTax BIGINT,
+    incomeTaxExpense BIGINT,
+    interestAndDebtExpense BIGINT,
+    netIncomeFromContinuingOperations BIGINT,
+    comprehensiveIncomeNetOfTax BIGINT,
+    ebit BIGINT,
+    ebitda BIGINT,
+    netIncome BIGINT,
+    PRIMARY KEY (symbol, fiscalDateEnding, reportedCurrency)
+);
+
+CREATE INDEX IF NOT EXISTS incomestatementidx ON IncomeStatement(symbol, fiscalDateEnding);

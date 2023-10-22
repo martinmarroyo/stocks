@@ -19,7 +19,7 @@ type DailyReading struct {
 	High   string `json:"2. high"`
 	Low    string `json:"3. low"`
 	Close  string `json:"4. close"`
-	Volume string `json:"6. volume"`
+	Volume string `json:"5. volume"`
 }
 
 // CompanyOverview
@@ -70,17 +70,6 @@ type CompanyOverview struct {
 	SharesOutstanding          string `json:"SharesOutstanding"`
 	DividendDate               string `json:"DividendDate"`
 	ExDividendDate             string `json:"ExDividendDate"`
-}
-
-// AnnualEarningsPerShare
-type AnnualEarningsPerShare struct {
-	Symbol         string     `json:"symbol"`
-	AnnualEarnings []Earnings `json:"annualEarnings"`
-}
-
-type Earnings struct {
-	FiscalDateEnding string  `json:"fiscalDateEnding"`
-	ReportedEPS      float32 `json:"reportedEPS"`
 }
 
 // BalanceSheet

@@ -47,3 +47,33 @@ func getCompanyOverview(apiKey, function, symbol string) CompanyOverview {
 	json.Unmarshal(body, &response)
 	return response
 }
+
+func getBalanceSheet(apiKey, function, symbol string) BalanceSheet {
+	body, err := getApiResponseBody(apiKey, function, symbol)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var response BalanceSheet
+	json.Unmarshal(body, &response)
+	return response
+}
+
+func getIncomeStatement(apiKey, function, symbol string) IncomeStatement {
+	body, err := getApiResponseBody(apiKey, function, symbol)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var response IncomeStatement
+	json.Unmarshal(body, &response)
+	return response
+}
+
+func getCashFlowReport(apiKey, function, symbol string) CashflowReport {
+	body, err := getApiResponseBody(apiKey, function, symbol)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var response CashflowReport
+	json.Unmarshal(body, &response)
+	return response
+}
