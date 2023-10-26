@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -23,6 +24,8 @@ func main() {
 	} else {
 		fmt.Println("Payload size: Last 20+ years historical")
 	}
+	channel := make(chan bool)
+	var wg sync.WaitGroup
 	ctx := context.Background()
 	conn, err := connectToDB(ctx, dbUrl)
 	if err != nil {
@@ -42,9 +45,10 @@ func main() {
 			rateLimit = 1
 			time.Sleep(1 * time.Minute)
 		}
+		wg.Add(1)
 		symbol := scanner.Text()
 		fmt.Printf("Getting data for %s\n", symbol)
-		getStockData(&ctx, conn, *compact, apiKey, symbol)
+		go getStockData(&ctx, channel, &wg, conn, *compact, apiKey, symbol)
 		fmt.Println("Total rows inserted for Daily Stocks: ", ctx.Value("DailyStocksRowsInserted"))
 		fmt.Println("Total rows inserted for CompanyOverview: ", ctx.Value("CompanyOverviewRowsInserted"))
 		fmt.Println("Total rows inserted for BalanceSheet: ", ctx.Value("BalanceSheetRowsInserted"))
@@ -52,12 +56,16 @@ func main() {
 		fmt.Println("Total rows inserted for CashFlowReport: ", ctx.Value("CashFlowRowsInserted"))
 		rateLimit++
 	}
-
+	go func() {
+		wg.Wait()
+		close(channel)
+	}()
 }
 
 // getStockData fetches stock data for a given symbol, collecting the Company Overview, Balance Sheets,
 // Income Statements, Cash Flow Statements, Annual Earnings Reports, and daily Stock Prices.
-func getStockData(ctx *context.Context, connection *pgxpool.Pool, compact bool, apiKey, symbol string) {
+func getStockData(ctx *context.Context, channel chan bool, wg *sync.WaitGroup, connection *pgxpool.Pool, compact bool, apiKey, symbol string) {
+	defer wg.Done()
 	dailyStocks := getDailyStockData(compact, apiKey, "TIME_SERIES_DAILY", symbol)
 	companyOverview := getCompanyOverview(apiKey, "OVERVIEW", symbol)
 	balanceSheets := getBalanceSheet(apiKey, "BALANCE_SHEET", symbol)
@@ -68,4 +76,5 @@ func getStockData(ctx *context.Context, connection *pgxpool.Pool, compact bool, 
 	upsertBalanceSheet(ctx, connection, balanceSheets)
 	upsertIncomeStatement(ctx, connection, incomeStatements)
 	upsertCashFlowReport(ctx, connection, cashFlowReport)
+	channel <- true
 }
