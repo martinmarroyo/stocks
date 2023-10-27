@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -43,7 +42,8 @@ func upsertDailyStock(ctx *context.Context, connection *pgxpool.Pool, dailyStock
 		rowsInserted += int(command.RowsAffected())
 		if err != nil {
 			fmt.Println("Error encountered in upsertDailyStock:")
-			log.Fatal(err)
+			fmt.Println(err)
+			continue
 		}
 	}
 	*ctx = context.WithValue(*ctx, "DailyStocksRowsInserted", rowsInserted)
@@ -84,8 +84,7 @@ func upsertCompanyOverview(ctx *context.Context, connection *pgxpool.Pool, data 
 
 	if err != nil {
 		fmt.Println("Error encountered in upsertCompanyOverview:")
-		fmt.Println(data)
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	*ctx = context.WithValue(*ctx, "CompanyOverviewRowsInserted", int(command.RowsAffected()))
@@ -125,8 +124,9 @@ func upsertBalanceSheet(ctx *context.Context, connection *pgxpool.Pool, data Bal
 			balanceSheet.OtherNonCurrentLiabilities, balanceSheet.TotalShareholderEquity, balanceSheet.TreasuryStock, balanceSheet.RetainedEarnings,
 			balanceSheet.CommonStock, balanceSheet.CommonStockSharesOutstanding)
 		if err != nil {
-			fmt.Println("Error encountered in upsertBalanceSheet:")
-			log.Fatal(err)
+			fmt.Println("Error encountered in upsertBalanceSheet")
+			fmt.Println(err)
+			continue
 		}
 		rowsInserted += int(command.RowsAffected())
 	}
@@ -163,7 +163,8 @@ func upsertIncomeStatement(ctx *context.Context, connection *pgxpool.Pool, data 
 			incomeStatement.NetIncomeFromContinuingOperations, incomeStatement.ComprehensiveIncomeNetOfTax, incomeStatement.Ebit, incomeStatement.Ebitda, incomeStatement.NetIncome)
 		if err != nil {
 			fmt.Println("Error encountered in upsertIncomeStatement:")
-			log.Fatal(err)
+			fmt.Println(err)
+			continue
 		}
 		rowsInserted += int(command.RowsAffected())
 	}
@@ -208,7 +209,8 @@ func upsertCashFlowReport(ctx *context.Context, connection *pgxpool.Pool, data C
 			cashFlowReport.ChangeInExchangeRate, cashFlowReport.NetIncome)
 		if err != nil {
 			fmt.Println("Error encountered in upsertCashFlowReport:")
-			log.Fatal(err)
+			fmt.Println(err)
+			continue
 		}
 		rowsInserted += int(command.RowsAffected())
 	}
