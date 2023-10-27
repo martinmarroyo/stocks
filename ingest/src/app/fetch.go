@@ -17,7 +17,6 @@ func buildUrl(apiKey, function, symbol string) string {
 }
 
 func getApiResponseBody(url, apiKey, function, symbol string) ([]byte, error) {
-
 	// Make request
 	request, err := http.Get(url)
 	if err != nil {
@@ -25,6 +24,12 @@ func getApiResponseBody(url, apiKey, function, symbol string) ([]byte, error) {
 	}
 	body, err := ioutil.ReadAll(request.Body)
 	return body, err
+}
+
+func handleError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getDailyStockData(compact bool, apiKey, function, symbol string) DailyStockResponse {
@@ -36,9 +41,7 @@ func getDailyStockData(compact bool, apiKey, function, symbol string) DailyStock
 	}
 	url := buildUrl(apiKey, function, symbol) + "&outputsize=" + outputSize
 	body, err := getApiResponseBody(url, apiKey, function, symbol)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
 	var response DailyStockResponse
 	json.Unmarshal(body, &response)
 	return response
@@ -47,9 +50,7 @@ func getDailyStockData(compact bool, apiKey, function, symbol string) DailyStock
 func getCompanyOverview(apiKey, function, symbol string) CompanyOverview {
 	url := buildUrl(apiKey, function, symbol)
 	body, err := getApiResponseBody(url, apiKey, function, symbol)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
 	var response CompanyOverview
 	json.Unmarshal(body, &response)
 	return response
@@ -58,9 +59,7 @@ func getCompanyOverview(apiKey, function, symbol string) CompanyOverview {
 func getBalanceSheet(apiKey, function, symbol string) BalanceSheet {
 	url := buildUrl(apiKey, function, symbol)
 	body, err := getApiResponseBody(url, apiKey, function, symbol)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
 	var response BalanceSheet
 	json.Unmarshal(body, &response)
 	return response
@@ -69,9 +68,7 @@ func getBalanceSheet(apiKey, function, symbol string) BalanceSheet {
 func getIncomeStatement(apiKey, function, symbol string) IncomeStatement {
 	url := buildUrl(apiKey, function, symbol)
 	body, err := getApiResponseBody(url, apiKey, function, symbol)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
 	var response IncomeStatement
 	json.Unmarshal(body, &response)
 	return response
@@ -80,9 +77,7 @@ func getIncomeStatement(apiKey, function, symbol string) IncomeStatement {
 func getCashFlowReport(apiKey, function, symbol string) CashflowReport {
 	url := buildUrl(apiKey, function, symbol)
 	body, err := getApiResponseBody(url, apiKey, function, symbol)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
 	var response CashflowReport
 	json.Unmarshal(body, &response)
 	return response
